@@ -8,6 +8,7 @@ _______________________
 ## Architecture
 
 ![architecture](https://developer.android.com/topic/libraries/architecture/images/final-architecture.png)
+
 1. Data layer: This layer is responsible for fetching data from a remote source or a local database. In this implementation, data is fetched from the GitHub API using Retrofit and converted using Moshi. Data is also cached in a Room database for offline access. By separating the data layer, the application can easily switch to a different data source without affecting the rest of the application.
 
 2. Repository layer: This layer acts as a bridge between the data layer and the presentation layer. It contains the business logic of the application, such as filtering and sorting the data. In this implementation, there is a single repository class that handles fetching data from the data source and applying the business logic. By using a repository pattern, the data layer is decoupled from the presentation layer, making the code more modular and testable.
