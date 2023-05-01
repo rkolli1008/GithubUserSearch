@@ -1,11 +1,12 @@
 # GithubUserSearch
 Functional Requirements
 _______________________
-1.The app should accept a github user's id as input and display the specified user's avatar and name.
-2.For each public repository owned by the user, the name and description are shown in a scrollable list.
-3.When a repository is selected, a card pops up with information about when it was last updated, how many stars it has, and how many times it has  been forked.
+1. The app should accept a github user's id as input and display the specified user's avatar and name.
+2. For each public repository owned by the user, the name and description are shown in a scrollable list.
+3. When a repository is selected, a card pops up with information about when it was last updated, how many stars it has, and how many times it has  been forked.
 
 ## Architecture
+_______________________
 
 ![architecture](https://developer.android.com/topic/libraries/architecture/images/final-architecture.png)
 
@@ -30,6 +31,8 @@ By organizing code into separate layers, the application can achieve a number of
 Overall, this implementation follows best practices for building Android applications, such as using Jetpack components, following the SOLID principles, and organizing code into layers.
 
 ## Specs & Open-source libraries
+_______________________
+
 - MVVM Architecture
 - Jetpack Components (Lifecycle, LiveData, ViewModel)
 - Compose UI Toolkit
