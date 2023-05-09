@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +37,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.assignment.githubusersearch.R
 import com.assignment.githubusersearch.models.Repository
+import com.assignment.githubusersearch.util.MessageType
+import com.assignment.githubusersearch.util.NetworkUtils.isDataConnectionAvailable
 import com.assignment.githubusersearch.viewmodel.RepoListViewModel
 import com.assignment.githubusersearch.viewmodel.UserUiState
 import com.assignment.githubusersearch.viewmodel.UserViewModel
@@ -85,19 +86,18 @@ fun MainScreen(userViewModel: UserViewModel, repoListViewModel: RepoListViewMode
                 onClick = {
                     focusManager.clearFocus()
                     if (currentUserId.isNotBlank()) {
-                        searchKicked.value = true
-                        userViewModel.getUser(currentUserId)
-                        repoListViewModel.getRepoList(currentUserId)
+                        if (!isDataConnectionAvailable(context)) {
+                            Toast.makeText(context, MessageType.DataNotAvailable.message, Toast.LENGTH_SHORT).show()
+                        } else {
+                            searchKicked.value = true
+                            userViewModel.getUser(currentUserId)
+                        }
                     } else {
-                        Toast.makeText(
-                            context,
-                            R.string.please_enter_a_github_user_id,
-                            Toast.LENGTH_SHORT,
-                        ).show()
+                        Toast.makeText(context, MessageType.GitUserIdEmpty.message, Toast.LENGTH_SHORT).show()
                     }
                 }, modifier = Modifier.wrapContentWidth()
             ) {
-                Text(text = stringResource(R.string.search))
+                Text(text = stringResource(R.string.search), style = MaterialTheme.typography.bodyLarge)
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -113,16 +113,28 @@ fun MainScreen(userViewModel: UserViewModel, repoListViewModel: RepoListViewMode
                     UserScreen(user = user)
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // User exists, get repo list
+                    if (!isDataConnectionAvailable(context)) {
+                        Toast.makeText(context, MessageType.DataNotAvailable.message, Toast.LENGTH_SHORT).show()
+                    } else {
+                        repoListViewModel.getRepoList(currentUserId)
+                    }
+                    repoListViewModel.getRepoList(currentUserId)
+
                     val repoList = repoListViewModel.repoList.observeAsState(emptyList())
-                    RepoListScreen(repoList = repoList.value, onItemClick = { repo ->
-                        currentRepository = repo
-                        openDialog.value = true
-                    })
+                    if (repoList.value.isEmpty()) {
+                        Text(text = MessageType.NoReposFound.message, modifier = Modifier.align(Alignment.CenterHorizontally))
+                    } else {
+                        RepoListScreen(repoList = repoList.value, onItemClick = { repo ->
+                            currentRepository = repo
+                            openDialog.value = true
+                        })
+                    }
                 }
 
                 is UserUiState.Error -> {
                     val errorMessage = (uiState as UserUiState.Error).message
-                    Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+                    Text(text = errorMessage.message, color = MaterialTheme.colorScheme.error)
                 }
             }
         } else {

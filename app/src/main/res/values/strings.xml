@@ -2,7 +2,7 @@
     <string name="app_name">Take Home</string>
     <string name="enter_a_github_user_id">Enter a github user id</string>
     <string name="please_enter_a_github_user_id">Please enter a Github User Id</string>
-    <string name="search"></string>
+    <string name="search">Search</string>
     <string name="dismiss">Dismiss</string>
     <string name="github_user_avatar">Github User Avatar</string>
 </resources>

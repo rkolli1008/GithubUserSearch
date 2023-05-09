@@ -5,6 +5,7 @@ import androidx.lifecycle.Observer
 import com.assignment.githubusersearch.models.User
 import com.assignment.githubusersearch.network.GithubApi
 import com.assignment.githubusersearch.repository.GithubRepository
+import com.assignment.githubusersearch.util.MessageType
 import com.assignment.githubusersearch.viewmodel.UserUiState
 import com.assignment.githubusersearch.viewmodel.UserViewModel
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
@@ -12,11 +13,8 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.withContext
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.hamcrest.CoreMatchers.equalTo
@@ -29,8 +27,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.any
 import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.timeout
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 import retrofit2.Retrofit
@@ -96,27 +92,6 @@ class UserViewModelTest {
         userViewModel.uiState.removeObserver(observer)
     }
 
-    /*@Test
-    fun `getUser with invalid user id should update userUiState with error state`() {
-        // Create a CountDownLatch with a count of 1
-        val latch = CountDownLatch(1)
-        // Mock response
-        val mockResponse = MockResponse().setResponseCode(404)
-        mockWebServer.enqueue(mockResponse)
-
-        // Set up the observer to wait for the error state
-        userViewModel.uiState.observeForever(observer)
-        `when`(observer.onChanged(UserUiState.Error("User not found"))).thenAnswer { latch.countDown() }
-
-        // Call getUser with an invalid user id
-        userViewModel.getUser("invaliduser")
-
-        // Wait for the observer to be triggered or time out after 5 seconds
-        assertThat(latch.await(5, TimeUnit.SECONDS), equalTo(true))
-
-        // Clean up the observer
-        userViewModel.uiState.removeObserver(observer)
-    }*/
     @Test
     fun `getUser with invalid user id should update userUiState with error state`() {
         // Create a CountDownLatch with a count of 1
@@ -129,7 +104,7 @@ class UserViewModelTest {
         userViewModel.uiState.observeForever(observer)
         doAnswer {
             val state = it.arguments[0] as UserUiState
-            if (state is UserUiState.Error && state.message == "User not found.") {
+            if (state is UserUiState.Error && state.message == MessageType.NoUserFound) {
                 latch.countDown()
             }
             null
