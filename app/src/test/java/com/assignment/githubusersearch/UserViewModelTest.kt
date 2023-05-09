@@ -6,7 +6,7 @@ import com.assignment.githubusersearch.models.User
 import com.assignment.githubusersearch.network.GithubApi
 import com.assignment.githubusersearch.repository.GithubRepository
 import com.assignment.githubusersearch.util.MessageType
-import com.assignment.githubusersearch.viewmodel.UserUiState
+import com.assignment.githubusersearch.viewmodel.UserState
 import com.assignment.githubusersearch.viewmodel.UserViewModel
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
@@ -45,7 +45,7 @@ class UserViewModelTest {
     private lateinit var githubRepository: GithubRepository
 
     @Mock
-    private lateinit var observer: Observer<UserUiState>
+    private lateinit var observer: Observer<UserState>
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -80,7 +80,7 @@ class UserViewModelTest {
 
         // Set up the observer to wait for the success state
         userViewModel.uiState.observeForever(observer)
-        `when`(observer.onChanged(UserUiState.Success(user))).thenAnswer { latch.countDown() }
+        `when`(observer.onChanged(UserState.Success(user))).thenAnswer { latch.countDown() }
 
         // Call getUser with a valid user id
         userViewModel.getUser("johnsmith")
@@ -103,12 +103,12 @@ class UserViewModelTest {
         // Set up the observer to wait for the error state
         userViewModel.uiState.observeForever(observer)
         doAnswer {
-            val state = it.arguments[0] as UserUiState
-            if (state is UserUiState.Error && state.message == MessageType.NoUserFound) {
+            val state = it.arguments[0] as UserState
+            if (state is UserState.Error && state.message == MessageType.NoUserFound) {
                 latch.countDown()
             }
             null
-        }.`when`(observer).onChanged(any(UserUiState::class.java))
+        }.`when`(observer).onChanged(any(UserState::class.java))
 
         // Call getUser with an invalid user id
         userViewModel.getUser("invaliduser234738e47")

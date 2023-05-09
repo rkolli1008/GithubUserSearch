@@ -11,27 +11,27 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class UserUiState {
-    object Loading : UserUiState()
-    data class Success(val user: User) : UserUiState()
-    data class Error(val message: MessageType) : UserUiState()
+sealed class UserState {
+    object Loading : UserState()
+    data class Success(val user: User) : UserState()
+    data class Error(val message: MessageType) : UserState()
 }
 
 @HiltViewModel
 class UserViewModel @Inject constructor(private val repository: GithubRepository) : ViewModel() {
-    private val _uiState = MutableLiveData<UserUiState>()
-    val uiState: LiveData<UserUiState>
+    private val _uiState = MutableLiveData<UserState>()
+    val uiState: LiveData<UserState>
         get() = _uiState
 
     fun getUser(userId: String) {
         viewModelScope.launch {
             try {
-                _uiState.postValue(UserUiState.Loading)
+                _uiState.postValue(UserState.Loading)
                 repository.getUser(userId).observeForever {
                     _uiState.postValue(it)
                 }
             } catch (e: Exception) {
-                _uiState.postValue(UserUiState.Error(MessageType.ErrorGettingData))
+                _uiState.postValue(UserState.Error(MessageType.ErrorGettingData))
             }
         }
     }

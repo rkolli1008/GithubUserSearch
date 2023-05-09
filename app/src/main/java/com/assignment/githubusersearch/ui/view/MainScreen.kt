@@ -40,7 +40,7 @@ import com.assignment.githubusersearch.models.Repository
 import com.assignment.githubusersearch.util.MessageType
 import com.assignment.githubusersearch.util.NetworkUtils.isDataConnectionAvailable
 import com.assignment.githubusersearch.viewmodel.RepoListViewModel
-import com.assignment.githubusersearch.viewmodel.UserUiState
+import com.assignment.githubusersearch.viewmodel.UserState
 import com.assignment.githubusersearch.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,7 +52,7 @@ fun MainScreen(userViewModel: UserViewModel, repoListViewModel: RepoListViewMode
     var currentRepository by rememberSaveable { mutableStateOf(Repository()) }
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val uiState by userViewModel.uiState.observeAsState(UserUiState.Loading)
+    val uiState by userViewModel.uiState.observeAsState(UserState.Loading)
 
     Column(
         modifier = Modifier
@@ -68,7 +68,8 @@ fun MainScreen(userViewModel: UserViewModel, repoListViewModel: RepoListViewMode
         ) {
             OutlinedTextField(
                 value = currentUserId,
-                onValueChange = { currentUserId = it },
+                onValueChange = { searchKicked.value = false
+                    currentUserId = it },
                 label = { Text(stringResource(R.string.enter_a_github_user_id)) },
                 modifier = Modifier.weight(1f),
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
@@ -91,6 +92,7 @@ fun MainScreen(userViewModel: UserViewModel, repoListViewModel: RepoListViewMode
                         } else {
                             searchKicked.value = true
                             userViewModel.getUser(currentUserId)
+                            repoListViewModel.getRepoList(currentUserId)
                         }
                     } else {
                         Toast.makeText(context, MessageType.GitUserIdEmpty.message, Toast.LENGTH_SHORT).show()
@@ -104,22 +106,14 @@ fun MainScreen(userViewModel: UserViewModel, repoListViewModel: RepoListViewMode
 
         if (searchKicked.value) {
             when (uiState) {
-                is UserUiState.Loading -> {
+                is UserState.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
                 }
 
-                is UserUiState.Success -> {
-                    val user = (uiState as UserUiState.Success).user
+                is UserState.Success -> {
+                    val user = (uiState as UserState.Success).user
                     UserScreen(user = user)
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    // User exists, get repo list
-                    if (!isDataConnectionAvailable(context)) {
-                        Toast.makeText(context, MessageType.DataNotAvailable.message, Toast.LENGTH_SHORT).show()
-                    } else {
-                        repoListViewModel.getRepoList(currentUserId)
-                    }
-                    repoListViewModel.getRepoList(currentUserId)
 
                     val repoList = repoListViewModel.repoList.observeAsState(emptyList())
                     if (repoList.value.isEmpty()) {
@@ -132,8 +126,8 @@ fun MainScreen(userViewModel: UserViewModel, repoListViewModel: RepoListViewMode
                     }
                 }
 
-                is UserUiState.Error -> {
-                    val errorMessage = (uiState as UserUiState.Error).message
+                is UserState.Error -> {
+                    val errorMessage = (uiState as UserState.Error).message
                     Text(text = errorMessage.message, color = MaterialTheme.colorScheme.error)
                 }
             }

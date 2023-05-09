@@ -5,41 +5,41 @@ import com.assignment.githubusersearch.models.Repository
 import com.assignment.githubusersearch.models.User
 import com.assignment.githubusersearch.network.GithubApi
 import com.assignment.githubusersearch.util.MessageType
-import com.assignment.githubusersearch.viewmodel.UserUiState
+import com.assignment.githubusersearch.viewmodel.UserState
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import javax.inject.Inject
 
 class GithubRepository @Inject constructor(private val githubApi: GithubApi) {
-    fun getUser(userId: String): MutableLiveData<UserUiState> {
-        val data = MutableLiveData<UserUiState>()
+    fun getUser(userId: String): MutableLiveData<UserState> {
+        val data = MutableLiveData<UserState>()
         githubApi.getUser(userId).enqueue(object : Callback<User> {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
                     if (response.body() != null) {
-                        data.value = UserUiState.Success(response.body()!!)
+                        data.value = UserState.Success(response.body()!!)
                     } else {
-                        data.value = UserUiState.Error(MessageType.NoUserFound)
+                        data.value = UserState.Error(MessageType.NoUserFound)
                     }
                 } else {
                     data.value = when (response.code()) {
                         404 -> {
-                            UserUiState.Error(MessageType.NoUserFound)
+                            UserState.Error(MessageType.NoUserFound)
                         }
 
                         403 -> {
-                            UserUiState.Error(MessageType.ForbiddenError)
+                            UserState.Error(MessageType.ForbiddenError)
                         }
 
-                        else -> UserUiState.Error(MessageType.ErrorGettingData)
+                        else -> UserState.Error(MessageType.ErrorGettingData)
                     }
                 }
             }
 
             override fun onFailure(call: Call<User>, t: Throwable) {
                 // Handle error
-                data.value = UserUiState.Error(MessageType.NoUserFound)
+                data.value = UserState.Error(MessageType.NoUserFound)
             }
         })
         return data
