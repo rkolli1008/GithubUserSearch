@@ -6,5 +6,5 @@ enum class MessageType(val message: String) {
     NoUserFound("No user found"),
     ErrorGettingData("Error getting data"),
     NoReposFound("No repositories found"),
-    ForbiddenError("Server error")
+    ForbiddenError("API rate limit exceeded")
 }

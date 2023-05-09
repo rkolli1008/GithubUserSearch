@@ -24,7 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,10 +46,10 @@ import com.assignment.githubusersearch.viewmodel.UserViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(userViewModel: UserViewModel, repoListViewModel: RepoListViewModel) {
-    var currentUserId by remember { mutableStateOf("") }
-    val openDialog = remember { mutableStateOf(false) }
-    val searchKicked = remember { mutableStateOf(false) }
-    var currentRepository by remember { mutableStateOf(Repository()) }
+    var currentUserId by rememberSaveable { mutableStateOf("") }
+    val openDialog = rememberSaveable { mutableStateOf(false) }
+    val searchKicked = rememberSaveable { mutableStateOf(false) }
+    var currentRepository by rememberSaveable { mutableStateOf(Repository()) }
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val uiState by userViewModel.uiState.observeAsState(UserUiState.Loading)
