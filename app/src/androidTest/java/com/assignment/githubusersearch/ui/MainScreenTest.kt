@@ -1,5 +1,6 @@
-package com.assignment.githubusersearch
+package com.assignment.githubusersearch.ui
 
+import androidx.activity.compose.setContent
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -9,6 +10,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.assignment.githubusersearch.R
+import com.assignment.githubusersearch.SearchActivity
 import com.assignment.githubusersearch.repository.GithubRepository
 import com.assignment.githubusersearch.ui.theme.GithubUserSearchTheme
 import com.assignment.githubusersearch.ui.view.MainScreen
@@ -31,7 +34,7 @@ import javax.inject.Inject
 @HiltAndroidTest
 class MainScreenTest {
     @get:Rule(order = 0)
-    var hiltRule = HiltAndroidRule(this)
+    var hiltTestRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
     val composeTestRule = createAndroidComposeRule<SearchActivity>()
@@ -41,8 +44,8 @@ class MainScreenTest {
 
     @Before
     fun setUp() {
-        hiltRule.inject()
-        composeTestRule.setContent {
+        hiltTestRule.inject()
+        composeTestRule.activity.setContent {
             GithubUserSearchTheme {
                 MainScreen(
                     userViewModel = UserViewModel(repository = repository),
@@ -58,7 +61,7 @@ class MainScreenTest {
         // Assert that the initial state is correct
         composeTestRule.onNodeWithText("Enter a github user id")
             .assertIsDisplayed()
-        composeTestRule.onNodeWithText("search")
+        composeTestRule.onNodeWithText("Search")
             .assertIsDisplayed()
     }
 
@@ -68,10 +71,10 @@ class MainScreenTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val toastMessage = context.getString(R.string.please_enter_a_github_user_id)
 
-        composeTestRule.onNodeWithText("SEARCH")
+        composeTestRule.onNodeWithText("Search")
             .performClick()
-
-        composeTestRule.onNodeWithText(toastMessage).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(toastMessage)
+            .assertIsDisplayed()
     }
 
     @Test
@@ -81,9 +84,9 @@ class MainScreenTest {
 
         val userId = "testuser"
         val searchButton =
-            composeTestRule.onNodeWithText("search")
+            composeTestRule.onNodeWithText("Search")
         val userIdTextField =
-            composeTestRule.onNodeWithContentDescription("Enter a github user id")
+            composeTestRule.onNodeWithText("Enter a github user id")
 
         userIdTextField.performTextInput(userId)
         searchButton.performClick()

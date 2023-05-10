@@ -18,7 +18,8 @@ class GithubRepository @Inject constructor(private val githubApi: GithubApi) {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
                     if (response.body() != null) {
-                        data.value = UserState.Success(response.body()!!)
+                        val user = response.body()
+                        data.value = user?.let { UserState.Success(it) }
                     } else {
                         data.value = UserState.Error(MessageType.NoUserFound)
                     }
