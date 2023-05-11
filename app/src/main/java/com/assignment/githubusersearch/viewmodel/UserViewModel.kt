@@ -23,16 +23,13 @@ class UserViewModel @Inject constructor(private val repository: GithubRepository
     val uiState: LiveData<UserState>
         get() = _uiState
 
-    fun getUser(userId: String) {
-        viewModelScope.launch {
-            try {
-                _uiState.postValue(UserState.Loading)
-                repository.getUser(userId).observeForever {
-                    _uiState.postValue(it)
-                }
-            } catch (e: Exception) {
-                _uiState.postValue(UserState.Error(MessageType.ErrorGettingData))
-            }
+    fun getUser(userId: String) = viewModelScope.launch {
+        try {
+            _uiState.postValue(UserState.Loading)
+            val data = repository.getUser(userId)
+            _uiState.postValue(data.value)
+        } catch (e: Exception) {
+            _uiState.postValue(UserState.Error(MessageType.ErrorGettingData))
         }
     }
 }

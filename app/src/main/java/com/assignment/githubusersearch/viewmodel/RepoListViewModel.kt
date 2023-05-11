@@ -21,20 +21,13 @@ class RepoListViewModel @Inject constructor(private val repository: GithubReposi
     val error: LiveData<String>
         get() = _error
 
-    fun getRepoList(userId: String) {
-        viewModelScope.launch {
-            try {
-                repository.getUserRepositories(userId).observeForever {
-                    if (it != null) {
-                        _repoList.value = it
-                        _repoList.postValue(it)
-                    } else {
-                        _error.value = "No results found!"
-                    }
-                }
-            } catch (e: Exception) {
-                _error.value = e.message
-            }
+    fun getRepoList(userId: String) = viewModelScope.launch {
+        try {
+            val data = repository.getUserRepositories(userId)
+            _repoList.value = data.value
+            _repoList.postValue(data.value)
+        } catch (e: Exception) {
+            _error.value = e.message
         }
     }
 }
